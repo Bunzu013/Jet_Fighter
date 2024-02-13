@@ -7,8 +7,8 @@ import java.awt.event.KeyEvent;
 import java.util.Random;
 
 public class GamePanel extends JPanel implements ActionListener {
-    static final int SCREEN_WIDTH = 600;
-    static  final int SCREEN_HEIGHT = 600;
+    static final int SCREEN_WIDTH = 300;
+    static  final int SCREEN_HEIGHT = 300;
     static final int PLANE_SIZE = 20;
     static final int DELAY = 10;
     int whiteX;
@@ -17,7 +17,7 @@ public class GamePanel extends JPanel implements ActionListener {
     int blackY;
     int whiteScore = 0;
     int blackScore = 0;
-    char directionW = 'R';
+    char directionW = 'D';
     char directionB = 'D';
     Timer timer;
     boolean running = false;
@@ -45,6 +45,7 @@ Color background = new Color(3, 72, 97);
         timer = new Timer(DELAY, this);
         timer.start();
 
+        blackX = SCREEN_WIDTH/2;
 
     }
 
@@ -108,8 +109,50 @@ public void move() {
     public void actionPerformed(ActionEvent e) {
         if (running) {
             move();
+            checkCollisions();
                }
         repaint();
+    }
+
+    public void checkCollisions() {
+        // Check for collision with left border
+        if (whiteX < 0) {
+            whiteX = SCREEN_WIDTH;
+        }
+        // Check for collision with right border
+        if (whiteX > SCREEN_WIDTH) {
+            whiteX = 0;
+        }
+        // Check for collision with top border
+        if (whiteY < 0) {
+            whiteY = SCREEN_HEIGHT;
+        }
+        // Check for collision with bottom border
+        if (whiteY > SCREEN_HEIGHT) {
+            whiteY = 0;
+        }
+
+        // Check for collision with left border for black jet
+        if (blackX <= 0) {
+            blackX = SCREEN_WIDTH;
+        }
+        // Check for collision with right border for black jet
+        if (blackX > SCREEN_WIDTH) {
+            blackX = 0;
+        }
+        // Check for collision with top border for black jet
+        if (blackY < 0) {
+            blackY = SCREEN_HEIGHT;
+        }
+        // Check for collision with bottom border for black jet
+        if (blackY > SCREEN_HEIGHT) {
+            blackY = 0;
+        }
+        //planes collisions
+        if ((whiteX + PLANE_SIZE > blackX && whiteX < blackX + PLANE_SIZE) &&
+                (whiteY + PLANE_SIZE > blackY && whiteY < blackY + PLANE_SIZE)) {
+            running = false;
+        }
     }
 
 
