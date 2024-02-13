@@ -26,7 +26,6 @@ public class GamePanel extends JPanel implements ActionListener {
     JLabel scoreLabel;
     Random random;
     Color background = new Color(3, 72, 97);
-
     ArrayList<Bullet> bullets = new ArrayList<>();
 
     GamePanel() {
@@ -36,24 +35,19 @@ public class GamePanel extends JPanel implements ActionListener {
         this.setBackground(background);
         this.setFocusable(true);
         this.addKeyListener(new MyKeyAdapter());
-
         startGame();
     }
-
-
     public void startGame() {
         running = true;
         timer = new Timer(DELAY, this);
         timer.start();
 
         blackX = SCREEN_WIDTH / 2;
-
     }
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         draw(g);
-
     }
 
     public void draw(Graphics g) {
@@ -65,9 +59,7 @@ public class GamePanel extends JPanel implements ActionListener {
             g.fillRect(blackX, blackY, PLANE_SIZE, PLANE_SIZE);
 
             for (Bullet bullet : bullets) bullet.drawBullet(g);
-
         }
-
     }
 
     @Override
@@ -135,9 +127,7 @@ public class GamePanel extends JPanel implements ActionListener {
             planeY = blackY;
             planeDirection = directionB;
         }
-
-        // Dodanie nowego pocisku na podstawie aktualnych współrzędnych samolotu
-        bullets.add(new Bullet(planeX, planeY, planeDirection, white));
+         bullets.add(new Bullet(planeX, planeY, planeDirection, white));
         repaint();
     }
 
@@ -233,7 +223,6 @@ public class GamePanel extends JPanel implements ActionListener {
                     break;
                 case KeyEvent.VK_ENTER:
                     shoot(true);
-
                     break;
             }
         }

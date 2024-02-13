@@ -1,13 +1,11 @@
 import java.awt.*;
 
 public class Bullet {
-
     static int BULLET_SIZE = 10;
     int x;
     int y;
     char direction;
     boolean isWhite;
-    //int speed = 4;
     static final int SPEED = 4;
 
     public Bullet(int x, int y, char direction, boolean isWhite) {
@@ -42,6 +40,4 @@ public class Bullet {
             g.fillOval(x, y, BULLET_SIZE,BULLET_SIZE);
         }
     }
-
-
 }
