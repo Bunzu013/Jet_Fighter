@@ -4,11 +4,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Random;
 
 public class GamePanel extends JPanel implements ActionListener {
     static final int SCREEN_WIDTH = 300;
-    static  final int SCREEN_HEIGHT = 300;
+    static final int SCREEN_HEIGHT = 300;
     static final int PLANE_SIZE = 20;
     static final int DELAY = 10;
     int whiteX;
@@ -22,13 +24,12 @@ public class GamePanel extends JPanel implements ActionListener {
     Timer timer;
     boolean running = false;
     JLabel scoreLabel;
-Random random;
-Color background = new Color(3, 72, 97);
-    Jet blackJet;
-    Jet whiteJet;
+    Random random;
+    Color background = new Color(3, 72, 97);
 
+    ArrayList<Bullet> bullets = new ArrayList<>();
 
-    GamePanel(){
+    GamePanel() {
         long seed = System.currentTimeMillis();
         this.random = new Random(seed);
         this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
@@ -45,74 +46,101 @@ Color background = new Color(3, 72, 97);
         timer = new Timer(DELAY, this);
         timer.start();
 
-        blackX = SCREEN_WIDTH/2;
+        blackX = SCREEN_WIDTH / 2;
 
     }
 
-public void paintComponent(Graphics g){
-    super.paintComponent(g);
-    draw(g);
-
-}
-
-    public void setup(){
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        draw(g);
 
     }
-public void draw(Graphics g){
-        if(running) {
+
+    public void draw(Graphics g) {
+        if (running) {
             g.setColor(Color.white);
             g.fillRect(whiteX, whiteY, PLANE_SIZE, PLANE_SIZE);
 
             g.setColor(Color.black);
             g.fillRect(blackX, blackY, PLANE_SIZE, PLANE_SIZE);
 
+            for (Bullet bullet : bullets) bullet.drawBullet(g);
+
         }
 
-}
-
-public void move() {
-    switch (directionW) {
-        case 'U':
-            whiteY = whiteY - 1;
-            break;
-        case 'D':
-            whiteY = whiteY + 1;
-            break;
-        case 'L':
-            whiteX = whiteX - 1;
-            break;
-        case 'R':
-            whiteX = whiteX + 1;
-            break;
-        default:
-            break;
     }
-    switch (directionB) {
-        case 'U':
-            blackY = blackY - 1;
-            break;
-        case 'D':
-            blackY = blackY + 1;
-            break;
-        case 'L':
-            blackX = blackX - 1;
-            break;
-        case 'R':
-            blackX = blackX + 1;
-            break;
-        default:
-            break;
-    }
-}
 
     @Override
     public void actionPerformed(ActionEvent e) {
         if (running) {
             move();
             checkCollisions();
-               }
+        }
         repaint();
     }
+
+    public void move() {
+        Iterator<Bullet> iterator = bullets.iterator();
+        while (iterator.hasNext()) {
+            Bullet bullet = iterator.next();
+            bullet.move();
+            if (bullet.x > SCREEN_WIDTH || bullet.x < 0 || bullet.y > SCREEN_HEIGHT || bullet.y < 0) {
+                iterator.remove();
+            }
+        }
+        switch (directionW) {
+            case 'U':
+                whiteY = whiteY - 1;
+                break;
+            case 'D':
+                whiteY = whiteY + 1;
+                break;
+            case 'L':
+                whiteX = whiteX - 1;
+                break;
+            case 'R':
+                whiteX = whiteX + 1;
+                break;
+            default:
+                break;
+        }
+        switch (directionB) {
+            case 'U':
+                blackY = blackY - 1;
+                break;
+            case 'D':
+                blackY = blackY + 1;
+                break;
+            case 'L':
+                blackX = blackX - 1;
+                break;
+            case 'R':
+                blackX = blackX + 1;
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void shoot(boolean white) {
+        int planeX, planeY;
+        char planeDirection;
+
+        if (white) {
+            planeX = whiteX;
+            planeY = whiteY;
+            planeDirection = directionW;
+        } else {
+            planeX = blackX;
+            planeY = blackY;
+            planeDirection = directionB;
+        }
+
+        // Dodanie nowego pocisku na podstawie aktualnych współrzędnych samolotu
+        bullets.add(new Bullet(planeX, planeY, planeDirection, white));
+        repaint();
+    }
+
 
     public void checkCollisions() {
         // Check for collision with left border
@@ -199,6 +227,13 @@ public void move() {
                     if (directionB != 'U') {
                         directionB = 'D';
                     }
+                    break;
+                case KeyEvent.VK_SPACE:
+                    shoot(false);
+                    break;
+                case KeyEvent.VK_ENTER:
+                    shoot(true);
+
                     break;
             }
         }
