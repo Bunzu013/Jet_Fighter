@@ -10,8 +10,9 @@ import java.util.Iterator;
 import java.util.Random;
 
 public class GamePanel extends JPanel implements ActionListener {
-    static final int SCREEN_WIDTH = 300;
-    static final int SCREEN_HEIGHT = 300;
+    static final int SCREEN_WIDTH = 400;
+    static final int SCREEN_HEIGHT = 500;
+    static final int TOP_PANEL_HEIGHT = 100;
     static final int PLANE_SIZE = 20;
     static final int DELAY = 10;
     int whiteX;
@@ -24,7 +25,8 @@ public class GamePanel extends JPanel implements ActionListener {
     char directionB = 'D';
     Timer timer;
     boolean running = false;
-    JLabel scoreLabel;
+    JLabel scoreLabelW;
+    JLabel scoreLabelB;
     Random random;
     Color background = new Color(3, 72, 97);
     ArrayList<Bullet> bullets = new ArrayList<>();
@@ -36,6 +38,37 @@ public class GamePanel extends JPanel implements ActionListener {
         this.setBackground(background);
         this.setFocusable(true);
         this.addKeyListener(new MyKeyAdapter());
+
+
+        JPanel topPanel = new JPanel(new GridBagLayout());
+        topPanel.setPreferredSize(new Dimension(SCREEN_WIDTH, TOP_PANEL_HEIGHT));
+        topPanel.setBackground(Color.DARK_GRAY);
+
+        scoreLabelW = new JLabel("White jet score: " + whiteScore);
+        scoreLabelW.setFont(new Font("Arial Narrow", Font.BOLD, 20));
+        scoreLabelW.setForeground(Color.black);
+
+        scoreLabelB = new JLabel("Black jet score: " + blackScore);
+        scoreLabelB.setFont(new Font("Arial Narrow", Font.BOLD, 20));
+        scoreLabelB.setForeground(Color.black);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 0.5;
+        gbc.insets = new Insets(10, 25, 10, 10);
+
+        topPanel.add(scoreLabelW, gbc);
+
+        gbc.gridx = 1;
+        topPanel.add(scoreLabelB, gbc);
+
+        this.setLayout(new BorderLayout());
+        this.add(topPanel, BorderLayout.NORTH);
+
+
+
         startGame();
     }
     public void startGame() {
@@ -44,6 +77,8 @@ public class GamePanel extends JPanel implements ActionListener {
         timer.start();
 
         blackX = SCREEN_WIDTH / 2;
+        blackY = TOP_PANEL_HEIGHT;
+        whiteY = TOP_PANEL_HEIGHT;
     }
 
     public void paintComponent(Graphics g) {
@@ -109,7 +144,7 @@ public class GamePanel extends JPanel implements ActionListener {
         while (iterator.hasNext()) {
             Bullet bullet = iterator.next();
             bullet.move();
-            if (bullet.x > SCREEN_WIDTH || bullet.x < 0 || bullet.y > SCREEN_HEIGHT || bullet.y < 0) {
+            if (bullet.x > SCREEN_WIDTH || bullet.x < 0 || bullet.y > SCREEN_HEIGHT || bullet.y < TOP_PANEL_HEIGHT) {
                 iterator.remove();
             }
         }
@@ -167,10 +202,10 @@ public class GamePanel extends JPanel implements ActionListener {
 
     public void checkCollisions() {
         //planes collisions
-        if ((whiteX + PLANE_SIZE > blackX && whiteX < blackX + PLANE_SIZE) &&
+     /*   if ((whiteX + PLANE_SIZE > blackX && whiteX < blackX + PLANE_SIZE) &&
                 (whiteY + PLANE_SIZE > blackY && whiteY < blackY + PLANE_SIZE)) {
             running = false;
-        }
+        }*/
 
         // bullet collisions
         Iterator<Bullet> bulletIterator = bullets.iterator();
@@ -181,12 +216,14 @@ public class GamePanel extends JPanel implements ActionListener {
             // Check collision of bullet with white plane
             if (!bullet.isWhite && bullet.intersects(whiteX, whiteY, PLANE_SIZE, PLANE_SIZE)) {
                 whiteScore++;
+                scoreLabelW.setText("White jet score: " + whiteScore);
                 bulletIterator.remove();
             }
 
             // Check collision of bullet with black plane
             if (bullet.isWhite && bullet.intersects(blackX, blackY, PLANE_SIZE, PLANE_SIZE)) {
                 blackScore++;
+                scoreLabelB.setText("Black jet score: " + blackScore);
                 bulletIterator.remove();
             }
         }
@@ -201,12 +238,12 @@ public class GamePanel extends JPanel implements ActionListener {
             whiteX = 0;
         }
         // Check for collision with top border
-        if (whiteY < 0) {
+        if (whiteY < TOP_PANEL_HEIGHT) {
             whiteY = SCREEN_HEIGHT;
         }
         // Check for collision with bottom border
         if (whiteY > SCREEN_HEIGHT) {
-            whiteY = 0;
+            whiteY = TOP_PANEL_HEIGHT;
         }
 
         // Check for collision with left border for black jet
@@ -218,12 +255,12 @@ public class GamePanel extends JPanel implements ActionListener {
             blackX = 0;
         }
         // Check for collision with top border for black jet
-        if (blackY < 0) {
-            blackY = SCREEN_HEIGHT;
+        if (blackY < TOP_PANEL_HEIGHT) {
+            blackY = SCREEN_HEIGHT ;
         }
         // Check for collision with bottom border for black jet
         if (blackY > SCREEN_HEIGHT) {
-            blackY = 0;
+            blackY = TOP_PANEL_HEIGHT;
         }
 
     }
