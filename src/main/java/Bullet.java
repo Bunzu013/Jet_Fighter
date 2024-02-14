@@ -40,4 +40,11 @@ public class Bullet {
             g.fillOval(x, y, BULLET_SIZE,BULLET_SIZE);
         }
     }
+
+    public boolean intersects(int x, int y, int width, int height) {
+     return (this.x < x + width &&
+                this.x + BULLET_SIZE > x &&
+                this.y < y + height &&
+                this.y + BULLET_SIZE > y);
+    }
 }

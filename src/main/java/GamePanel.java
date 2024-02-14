@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
@@ -54,23 +55,43 @@ public class GamePanel extends JPanel implements ActionListener {
         if (running) {
             Graphics2D g2d = (Graphics2D) g;
 
-            // Rysowanie trójkąta dla białego samolotu
+            // Draw and rotate white plane
+            AffineTransform oldTransform = g2d.getTransform();
+            g2d.rotate(getAngle(directionW), whiteX + PLANE_SIZE / 2, whiteY + PLANE_SIZE / 2);
             int[] xPointsWhite = {whiteX + PLANE_SIZE / 2, whiteX, whiteX + PLANE_SIZE};
             int[] yPointsWhite = {whiteY, whiteY + PLANE_SIZE, whiteY + PLANE_SIZE};
             int nPointsWhite = 3;
             Polygon whitePlane = new Polygon(xPointsWhite, yPointsWhite, nPointsWhite);
             g2d.setColor(Color.white);
             g2d.fill(whitePlane);
+            g2d.setTransform(oldTransform);
 
-            // Rysowanie trójkąta dla czarnego samolotu
+            // Draw and rotate black plane
+            g2d.rotate(getAngle(directionB), blackX + PLANE_SIZE / 2, blackY + PLANE_SIZE / 2);
             int[] xPointsBlack = {blackX + PLANE_SIZE / 2, blackX, blackX + PLANE_SIZE};
             int[] yPointsBlack = {blackY, blackY + PLANE_SIZE, blackY + PLANE_SIZE};
             int nPointsBlack = 3;
             Polygon blackPlane = new Polygon(xPointsBlack, yPointsBlack, nPointsBlack);
             g2d.setColor(Color.black);
             g2d.fill(blackPlane);
+            g2d.setTransform(oldTransform);
 
             for (Bullet bullet : bullets) bullet.drawBullet(g);
+        }
+    }
+
+    private double getAngle(char direction) {
+        switch (direction) {
+            case 'U':
+                return Math.toRadians(0); // Up
+            case 'D':
+                return Math.toRadians(180); // Down
+            case 'L':
+                return Math.toRadians(270); // Left
+            case 'R':
+                return Math.toRadians(90);// Right
+            default:
+                return 0;
         }
     }
 
@@ -158,23 +179,19 @@ public class GamePanel extends JPanel implements ActionListener {
             bullet.move();
 
             // Check collision of bullet with white plane
-            if (!bullet.isWhite && bullet.x < whiteX + PLANE_SIZE &&
-                    bullet.x > whiteX && bullet.y > whiteY &&
-                    bullet.y < whiteY + PLANE_SIZE) {
+            if (!bullet.isWhite && bullet.intersects(whiteX, whiteY, PLANE_SIZE, PLANE_SIZE)) {
                 whiteScore++;
                 bulletIterator.remove();
             }
 
             // Check collision of bullet with black plane
-            if (bullet.isWhite && bullet.x < blackX + PLANE_SIZE &&
-                    bullet.x > blackX && bullet.y > blackY &&
-                    bullet.y < blackY + PLANE_SIZE) {
+            if (bullet.isWhite && bullet.intersects(blackX, blackY, PLANE_SIZE, PLANE_SIZE)) {
                 blackScore++;
                 bulletIterator.remove();
             }
-
-
         }
+
+
         // Check for collision with left border
         if (whiteX < 0) {
             whiteX = SCREEN_WIDTH;
@@ -217,44 +234,31 @@ public class GamePanel extends JPanel implements ActionListener {
         public void keyPressed(KeyEvent e) {
             switch (e.getKeyCode()) {
                 case KeyEvent.VK_LEFT:
-                    if (directionW != 'R') {
                         directionW = 'L';
-                    }
+
                     break;
                 case KeyEvent.VK_RIGHT:
-                    if (directionW != 'L') {
                         directionW = 'R';
-                    }
                     break;
                 case KeyEvent.VK_UP:
-                    if (directionW != 'D') {
                         directionW = 'U';
-                    }
                     break;
                 case KeyEvent.VK_DOWN:
-                    if (directionW != 'U') {
                         directionW = 'D';
-                    }
                     break;
                 case KeyEvent.VK_D:
-                    if (directionB != 'L') {
                         directionB = 'R';
-                    }
                     break;
                 case KeyEvent.VK_A:
-                    if (directionB != 'R') {
                         directionB = 'L';
-                    }
                     break;
                 case KeyEvent.VK_W:
-                    if (directionB != 'D') {
                         directionB = 'U';
-                    }
+
                     break;
                 case KeyEvent.VK_S:
-                    if (directionB != 'U') {
                         directionB = 'D';
-                    }
+
                     break;
                 case KeyEvent.VK_SPACE:
                     shoot(false);
