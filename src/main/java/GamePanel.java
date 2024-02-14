@@ -52,11 +52,23 @@ public class GamePanel extends JPanel implements ActionListener {
 
     public void draw(Graphics g) {
         if (running) {
-            g.setColor(Color.white);
-            g.fillRect(whiteX, whiteY, PLANE_SIZE, PLANE_SIZE);
+            Graphics2D g2d = (Graphics2D) g;
 
-            g.setColor(Color.black);
-            g.fillRect(blackX, blackY, PLANE_SIZE, PLANE_SIZE);
+            // Rysowanie trójkąta dla białego samolotu
+            int[] xPointsWhite = {whiteX + PLANE_SIZE / 2, whiteX, whiteX + PLANE_SIZE};
+            int[] yPointsWhite = {whiteY, whiteY + PLANE_SIZE, whiteY + PLANE_SIZE};
+            int nPointsWhite = 3;
+            Polygon whitePlane = new Polygon(xPointsWhite, yPointsWhite, nPointsWhite);
+            g2d.setColor(Color.white);
+            g2d.fill(whitePlane);
+
+            // Rysowanie trójkąta dla czarnego samolotu
+            int[] xPointsBlack = {blackX + PLANE_SIZE / 2, blackX, blackX + PLANE_SIZE};
+            int[] yPointsBlack = {blackY, blackY + PLANE_SIZE, blackY + PLANE_SIZE};
+            int nPointsBlack = 3;
+            Polygon blackPlane = new Polygon(xPointsBlack, yPointsBlack, nPointsBlack);
+            g2d.setColor(Color.black);
+            g2d.fill(blackPlane);
 
             for (Bullet bullet : bullets) bullet.drawBullet(g);
         }
@@ -133,6 +145,36 @@ public class GamePanel extends JPanel implements ActionListener {
 
 
     public void checkCollisions() {
+        //planes collisions
+        if ((whiteX + PLANE_SIZE > blackX && whiteX < blackX + PLANE_SIZE) &&
+                (whiteY + PLANE_SIZE > blackY && whiteY < blackY + PLANE_SIZE)) {
+            running = false;
+        }
+
+        // bullet collisions
+        Iterator<Bullet> bulletIterator = bullets.iterator();
+        while (bulletIterator.hasNext()) {
+            Bullet bullet = bulletIterator.next();
+            bullet.move();
+
+            // Check collision of bullet with white plane
+            if (!bullet.isWhite && bullet.x < whiteX + PLANE_SIZE &&
+                    bullet.x > whiteX && bullet.y > whiteY &&
+                    bullet.y < whiteY + PLANE_SIZE) {
+                whiteScore++;
+                bulletIterator.remove();
+            }
+
+            // Check collision of bullet with black plane
+            if (bullet.isWhite && bullet.x < blackX + PLANE_SIZE &&
+                    bullet.x > blackX && bullet.y > blackY &&
+                    bullet.y < blackY + PLANE_SIZE) {
+                blackScore++;
+                bulletIterator.remove();
+            }
+
+
+        }
         // Check for collision with left border
         if (whiteX < 0) {
             whiteX = SCREEN_WIDTH;
@@ -166,11 +208,7 @@ public class GamePanel extends JPanel implements ActionListener {
         if (blackY > SCREEN_HEIGHT) {
             blackY = 0;
         }
-        //planes collisions
-        if ((whiteX + PLANE_SIZE > blackX && whiteX < blackX + PLANE_SIZE) &&
-                (whiteY + PLANE_SIZE > blackY && whiteY < blackY + PLANE_SIZE)) {
-            running = false;
-        }
+
     }
 
 
